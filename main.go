@@ -35,7 +35,7 @@ func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var token Token
 		c.ShouldBindBodyWith(&token, binding.JSON)
-		if token.Access_token != con.Access_token {
+		if token.Access_token != Con.Access_token {
 			log.Println()
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
@@ -44,27 +44,27 @@ func Auth() gin.HandlerFunc {
 }
 
 func main() {
-	log.Println(con)
-	Init(&con)
-	log.Println(con)
+	log.Println(Con)
+	Init(&Con)
+	log.Println(Con)
 	log.SetFlags(log.Ldate | log.Lshortfile)
 	e := gin.New()
 	e.Use(gin.Logger(), gin.Recovery(), Cors(), Auth())
 	e.POST("/redeploy", Posting)
-	err := e.Run(":" + con.Port)
+	err := e.Run(":" + Con.Port)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func Init(c interface{}) {
-	con.Access_key = os.Getenv("ACCESS_KEY")
-	con.Access_token = os.Getenv("ACCESS_TOKEN")
-	con.Port = os.Getenv("PORT")
-	con.Url = os.Getenv("URL")
+func Init(c *Config) {
+	c.Access_key = os.Getenv("ACCESS_KEY")
+	c.Access_token = os.Getenv("ACCESS_TOKEN")
+	c.Port = os.Getenv("PORT")
+	c.Url = os.Getenv("URL")
 }
 
-var con Config
+var Con Config
 
 type Config struct {
 	Port         string `env:"PORT"`
@@ -80,13 +80,13 @@ type ClientMassage struct {
 
 // 发送post请求
 func Posting(c *gin.Context) {
-	err := c.ShouldBindBodyWith(&con, binding.JSON)
+	err := c.ShouldBindBodyWith(&Con, binding.JSON)
 	if err != nil {
 		log.Println(err)
 	}
 
-	payload := strings.NewReader("{\"access_key\":\"" + con.Access_key + "\"}")
-	req, err := http.NewRequest("PUT", con.Url, payload)
+	payload := strings.NewReader("{\"access_key\":\"" + Con.Access_key + "\"}")
+	req, err := http.NewRequest("PUT", Con.Url, payload)
 	if err != nil {
 		log.Println(err)
 	}
